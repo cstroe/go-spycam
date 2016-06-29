@@ -33,8 +33,9 @@ func selectHighestResolution(cam *webcam.Webcam, format webcam.PixelFormat) webc
 	return *highestResolution
 }
 
-func saveFrame(frame []byte) {
-	err := ioutil.WriteFile("/tmp/frame.jpeg", frame, 0644)
+func saveFrame(frame []byte, i uint32) {
+	fileName := fmt.Sprintf("/home/marin/saved_frames/frame_%05d.jpeg", i)
+	err := ioutil.WriteFile(fileName, frame, 0644)
 	if err != nil {
 		panic(fmt.Errorf(err.Error()))
 	}
@@ -66,7 +67,7 @@ func main() {
 	}
 
 	timeout := uint32(5) //5 seconds
-	for {
+	for frameNum := uint32(0); true; frameNum++ {
 		err = cam.WaitForFrame(timeout)
 
 		switch err.(type) {
@@ -81,8 +82,7 @@ func main() {
 		frame, err := cam.ReadFrame()
 		if len(frame) != 0 {
 			print(".")
-			saveFrame(frame)
-			break
+			saveFrame(frame, frameNum)
 		} else if err != nil {
 			panic(err.Error())
 		}
